@@ -1,11 +1,27 @@
 import { useState } from "react";
-import { isValidWebsiteAddress } from "../utils";
+import { formatWebsite, isValidWebsiteAddress } from "../utils";
 import Loader from "../components/Loader";
+import ErrorPage from "./ErrorPage";
+import type { Results } from "../types";
+import { useNavigate } from "react-router";
 
 export default function HomePage() {
   const [website, setWebsite] = useState("");
   const [isError, setIsError] = useState(false);
+  const [isServerError, setIsServerError] = useState(false);
+  const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  if (isServerError) {
+    return (
+      <ErrorPage
+        errorHeading={serverError}
+        errorDescription="Try analyze a website again"
+        buttonText="Analyze website"
+        buttonURL="/"
+      />
+    );
+  }
   return (
     <div className="home">
       <h1>
@@ -32,6 +48,42 @@ export default function HomePage() {
               const isValidAddress = isValidWebsiteAddress(website, setIsError);
               if (isValidAddress) {
                 setIsLoading(true);
+                const formattedWebsite = formatWebsite(website);
+                const server = import.meta.env.VITE_SERVER;
+                const results: Results = {
+                  url: formattedWebsite,
+                };
+                fetch(`${server}/check-status?url=${formattedWebsite}`, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                })
+                  .then((response) => response.json())
+                  .then(({ websiteStatus }) => {
+                    results.websiteStatus = websiteStatus;
+                  })
+                  .catch(({ error }) => {
+                    setIsServerError(true);
+                    setServerError(error);
+                    setIsLoading(false);
+                  });
+                fetch(`${server}/check-seo?url=${formattedWebsite}`, {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                })
+                  .then((response) => response.json())
+                  .then(({ seo }) => {
+                    results.seo = seo;
+                    navigate("/results", { state: results });
+                  })
+                  .catch(({ error }) => {
+                    setIsServerError(true);
+                    setServerError(error);
+                    setIsLoading(false);
+                  });
               }
             }}
           >

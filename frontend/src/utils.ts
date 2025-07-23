@@ -11,3 +11,10 @@ export const isValidWebsiteAddress = (
     return false;
   }
 };
+export const formatWebsite = (url: string): string => {
+  const httpsRegex = /^https?:\/\//i;
+  if (!httpsRegex.test(url)) {
+    return "https://" + url;
+  }
+  return url;
+};

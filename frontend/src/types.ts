@@ -1,11 +1,11 @@
 export interface Results {
   url: string;
-  websiteStatus: {
+  websiteStatus?: {
     online: boolean;
     httpStatus: number;
     responseTimeMs: number;
   };
-  seo: {
+  seo?: {
     title: {
       found: boolean;
       value: string;
