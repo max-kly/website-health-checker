@@ -25,6 +25,18 @@ cd website-health-checker
 
 ---
 
+## Environment Variables
+
+### Frontend
+
+- `VITE_SERVER` — URL of the backend API (e.g., `http://localhost:10000`). Add it to the `/frontend` folder in `.env` file
+
+### Backend
+
+- `PUPPETEER_EXECUTABLE_PATH` — Set automatically in Docker. If running locally, ensure Puppeteer can find Chromium.
+
+---
+
 ## Running with Docker
 
 ### Production Mode
@@ -75,18 +87,6 @@ cd frontend
 npm install
 npm run dev
 ```
-
----
-
-## Environment Variables
-
-### Frontend
-
-- `VITE_SERVER` — URL of the backend API (e.g., `http://localhost:10000`).
-
-### Backend
-
-- `PUPPETEER_EXECUTABLE_PATH` — Set automatically in Docker. If running locally, ensure Puppeteer can find Chromium.
 
 ---
 
