@@ -1,13 +1,10 @@
 import { useLocation } from "react-router";
-// import { testResults } from "../data/testResults";
 import type { Results } from "../types";
 import ErrorPage from "./ErrorPage";
 
 export default function ResultsPage() {
   const location = useLocation();
   const results = location.state as Results;
-  console.log(results);
-  // const results = testResults as Results;
   if (!results) {
     return (
       <ErrorPage
