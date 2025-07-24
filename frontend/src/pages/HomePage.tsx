@@ -44,46 +44,58 @@ export default function HomePage() {
             onBlur={(e) => isValidWebsiteAddress(e.target.value, setIsError)}
           />
           <button
-            onClick={() => {
+            onClick={async () => {
               const isValidAddress = isValidWebsiteAddress(website, setIsError);
-              if (isValidAddress) {
-                setIsLoading(true);
-                const formattedWebsite = formatWebsite(website);
-                const server = import.meta.env.VITE_SERVER;
-                const results: Results = {
-                  url: formattedWebsite,
-                };
-                fetch(`${server}/check-status?url=${formattedWebsite}`, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                })
-                  .then((response) => response.json())
-                  .then(({ websiteStatus }) => {
-                    results.websiteStatus = websiteStatus;
-                  })
-                  .catch(({ error }) => {
-                    setIsServerError(true);
-                    setServerError(error);
-                    setIsLoading(false);
-                  });
-                fetch(`${server}/check-seo?url=${formattedWebsite}`, {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                })
-                  .then((response) => response.json())
-                  .then(({ seo }) => {
-                    results.seo = seo;
-                    navigate("/results", { state: results });
-                  })
-                  .catch(({ error }) => {
-                    setIsServerError(true);
-                    setServerError(error);
-                    setIsLoading(false);
-                  });
+              if (!isValidAddress) return;
+
+              setIsLoading(true);
+              setIsServerError(false);
+              setServerError("");
+
+              const formattedWebsite = formatWebsite(website);
+              const server = import.meta.env.VITE_SERVER;
+              const results: Results = { url: formattedWebsite };
+
+              try {
+                const statusRes = await fetch(
+                  `${server}/check-status?url=${formattedWebsite}`,
+                  {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                  }
+                );
+                if (!statusRes.ok) {
+                  const { error } = await statusRes.json();
+                  throw new Error(error || "Failed to fetch website status");
+                }
+                const { websiteStatus } = await statusRes.json();
+                results.websiteStatus = websiteStatus;
+                if (!results.websiteStatus!.online) {
+                  navigate("/results", { state: results });
+                }
+                const seoRes = await fetch(
+                  `${server}/check-seo?url=${formattedWebsite}`,
+                  {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                  }
+                );
+                if (!seoRes.ok) {
+                  const { error } = await seoRes.json();
+                  throw new Error(error || "Failed to fetch SEO data");
+                }
+                const { seo } = await seoRes.json();
+                results.seo = seo;
+                navigate("/results", { state: results });
+              } catch (err: unknown) {
+                setIsServerError(true);
+                setServerError(
+                  err instanceof Error
+                    ? err.message
+                    : "An unexpected error occurred"
+                );
+              } finally {
+                setIsLoading(false);
               }
             }}
           >
