@@ -8,6 +8,7 @@ import { useState } from "react";
 
 function App() {
   const [mode, setMode] = useState("light");
+  document.title = 'Webite health & SEO | Max Kly'
   return (
     <>
       <ModeToggle mode={mode} setMode={setMode} />
