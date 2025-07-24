@@ -108,6 +108,9 @@ export default function ResultsPage() {
           </div>
         </>
       ) : null}
+      <a href="/" className="button">
+        Analyze another website
+      </a>
     </div>
   );
 }
