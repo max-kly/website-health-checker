@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./backend
+    container_name: website-health-backend
+    ports:
+      - "10000:10000"
+    environment:
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    networks:
+      - webnet
+  frontend:
+    build: ./frontend
+    container_name: website-health-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - webnet
+networks:
+  webnet:
